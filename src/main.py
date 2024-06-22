@@ -1,12 +1,24 @@
 import requests
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Security, HTTPException, status, Depends
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from PIL import Image
-# from model import model_repo
+from fastapi.security import APIKeyHeader
 
+from model import model_repo
+
+api_key_header = APIKeyHeader(name="X-API-Key")
 app = FastAPI()
+
+
+def get_user(api_key_header: str = Security(api_key_header)):
+    if api_key_header != "moota":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="API key ผิดนะ อิอิ",
+        )
+    return True
 
 
 class Body(BaseModel):
@@ -20,7 +32,7 @@ def read_root():
 
 
 @app.post("/predict")
-def chat(body: Body):
+def chat(body: Body, middleware=Depends(get_user)):
     prompt = body.prompt
     url = body.url
     try:

@@ -23,4 +23,4 @@ class ModelRepo:
         return outputs
 
 
-# model_repo = ModelRepo()
+model_repo = ModelRepo()
